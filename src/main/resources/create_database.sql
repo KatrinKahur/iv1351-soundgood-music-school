@@ -55,7 +55,8 @@ CREATE TABLE "enrollment_application" (
     "skillfullness" character varying(100) NOT NULL,
     "applied_instrument_id" integer,
     "applied_ensemble_id" integer,
-    "place_offered" BOOLEAN
+    "place_offered" BOOLEAN,
+    "place_accepted" BOOLEAN
 );
 
 CREATE TABLE "ensemble_participant" (
@@ -247,85 +248,120 @@ CREATE TABLE "student_siblings" (
 -- FOREIGN KEY CONSTRAINTS
 
 -- FK for applicant
-ALTER TABLE ONLY "applicant" ADD CONSTRAINT "applicant_person_id_fkey" FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "applicant" ADD CONSTRAINT "applicant_person_id_fkey"
+    FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 
 -- FK for enrollment_application
-ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_ensemble_id_fkey" FOREIGN KEY (applied_ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_instrument_id_fkey" FOREIGN KEY (applied_instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applicant_id_fkey" FOREIGN KEY (applicant_id) REFERENCES applicant(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_ensemble_id_fkey"
+    FOREIGN KEY (applied_ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_instrument_id_fkey"
+    FOREIGN KEY (applied_instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applicant_id_fkey"
+    FOREIGN KEY (applicant_id) REFERENCES applicant(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for ensemble
-ALTER TABLE ONLY "ensemble" ADD CONSTRAINT "ensemble_instructor_id_fkey" FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "ensemble" ADD CONSTRAINT "ensemble_instructor_id_fkey"
+    FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
 
 -- FK for ensemble_time
-ALTER TABLE ONLY "ensemble_time" ADD CONSTRAINT "ensemble_time_ensemble_id_fkey" FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "ensemble_time" ADD CONSTRAINT "ensemble_time_ensemble_id_fkey"
+    FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 --FK for ensemble_participants
-ALTER TABLE ONLY "ensemble_participant" ADD CONSTRAINT "ensemble_participant_ensemble_id_fkey" FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "ensemble_participant" ADD CONSTRAINT "ensemble_participant_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "ensemble_participant" ADD CONSTRAINT "ensemble_participant_ensemble_id_fkey"
+    FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "ensemble_participant" ADD CONSTRAINT "ensemble_participant_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for group_lesson
-ALTER TABLE ONLY "group_lesson" ADD CONSTRAINT "group_lesson_instructor_id_fkey" FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
-ALTER TABLE ONLY "group_lesson" ADD CONSTRAINT "group_lesson_taught_instrument_id_fkey" FOREIGN KEY (taught_instrument_id) REFERENCES musical_instrument(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "group_lesson" ADD CONSTRAINT "group_lesson_instructor_id_fkey"
+    FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "group_lesson" ADD CONSTRAINT "group_lesson_taught_instrument_id_fkey"
+    FOREIGN KEY (taught_instrument_id) REFERENCES musical_instrument(id) NOT DEFERRABLE;
 
 --FK for group_lesson_participant
-ALTER TABLE ONLY "group_lesson_participant" ADD CONSTRAINT "group_lesson_participant_group_lesson_id_fkey" FOREIGN KEY (group_lesson_id) REFERENCES group_lesson(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "group_lesson_participant" ADD CONSTRAINT "group_lesson_participant_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "group_lesson_participant" ADD CONSTRAINT "group_lesson_participant_group_lesson_id_fkey"
+    FOREIGN KEY (group_lesson_id) REFERENCES group_lesson(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "group_lesson_participant" ADD CONSTRAINT "group_lesson_participant_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for group_lesson_time
-ALTER TABLE ONLY "group_lesson_time" ADD CONSTRAINT "group_lesson_time_group_lesson_id_fkey" FOREIGN KEY (group_lesson_id) REFERENCES group_lesson(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "group_lesson_time" ADD CONSTRAINT "group_lesson_time_group_lesson_id_fkey"
+    FOREIGN KEY (group_lesson_id) REFERENCES group_lesson(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for individual_lesson
-ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_instructor_id_fkey" FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
-ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id) NOT DEFERRABLE;
-ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_taught_instrument_id_fkey" FOREIGN KEY (taught_instrument_id) REFERENCES musical_instrument(id) NOT DEFERRABLE;
-ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_booked_time_slot_id_fkey" FOREIGN KEY (booked_time_slot_id) REFERENCES instructor_time_slot(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_instructor_id_fkey"
+    FOREIGN KEY (instructor_id) REFERENCES instructor(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_taught_instrument_id_fkey"
+    FOREIGN KEY (taught_instrument_id) REFERENCES musical_instrument(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "individual_lesson" ADD CONSTRAINT "individual_lesson_booked_time_slot_id_fkey"
+    FOREIGN KEY (booked_time_slot_id) REFERENCES instructor_time_slot(id) NOT DEFERRABLE;
 
 -- FK for instructor
-ALTER TABLE ONLY "instructor" ADD CONSTRAINT "instructor_person_id_fkey" FOREIGN KEY (person_id) REFERENCES person(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "instructor" ADD CONSTRAINT "instructor_person_id_fkey"
+    FOREIGN KEY (person_id) REFERENCES person(id) NOT DEFERRABLE;
 
 -- FK for instructor_instrument
-ALTER TABLE ONLY "taught_instrument" ADD CONSTRAINT "taught_instrument_instructor_id_fkey" FOREIGN KEY (instructor_id) REFERENCES instructor(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "taught_instrument" ADD CONSTRAINT "taught_instrument_instrument_id_fkey" FOREIGN KEY (instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "taught_instrument" ADD CONSTRAINT "taught_instrument_instructor_id_fkey"
+    FOREIGN KEY (instructor_id) REFERENCES instructor(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "taught_instrument" ADD CONSTRAINT "taught_instrument_instrument_id_fkey"
+    FOREIGN KEY (instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for instructor_time_slot
-ALTER TABLE ONLY "instructor_time_slot" ADD CONSTRAINT "instructor_time_slot_instructor_id_fkey" FOREIGN KEY (instructor_id) REFERENCES instructor(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "instructor_time_slot" ADD CONSTRAINT "instructor_time_slot_instructor_id_fkey"
+    FOREIGN KEY (instructor_id) REFERENCES instructor(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for instrument_played_in_ensemble
-ALTER TABLE ONLY "instrument_played_in_ensemble" ADD CONSTRAINT "instrument_played_in_ensemble_instrument_id_fkey" FOREIGN KEY (instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "instrument_played_in_ensemble" ADD CONSTRAINT "instrument_played_in_ensemble_ensemble_id_fkey" FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "instrument_played_in_ensemble" ADD CONSTRAINT "instrument_played_in_ensemble_instrument_id_fkey"
+    FOREIGN KEY (instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "instrument_played_in_ensemble" ADD CONSTRAINT "instrument_played_in_ensemble_ensemble_id_fkey"
+    FOREIGN KEY (ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 
 -- FK for instrument_rental
-ALTER TABLE ONLY "instrument_rental" ADD CONSTRAINT "instrument_rental_instrument_id_fkey" FOREIGN KEY (instrument_id) REFERENCES musical_instrument_to_rent(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "instrument_rental" ADD CONSTRAINT "instrument_rental_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "instrument_rental" ADD CONSTRAINT "instrument_rental_instrument_id_fkey"
+    FOREIGN KEY (instrument_id) REFERENCES musical_instrument_to_rent(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "instrument_rental" ADD CONSTRAINT "instrument_rental_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for musical_instrument_to_rent
-ALTER TABLE ONLY "musical_instrument_to_rent" ADD CONSTRAINT "musical_instrument_to_rent_instrument_type_id_fkey" FOREIGN KEY (instrument_type_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "musical_instrument_to_rent" ADD CONSTRAINT "musical_instrument_to_rent_instrument_type_id_fkey"
+    FOREIGN KEY (instrument_type_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for parent_details
-ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_parent_id_fkey"
+    FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for parent_email
-ALTER TABLE ONLY "parent_email" ADD CONSTRAINT "parent_email_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "parent_email" ADD CONSTRAINT "parent_email_parent_id_fkey"
+    FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for parent_phone
-ALTER TABLE ONLY "parent_phone" ADD CONSTRAINT "parent_phone_parent_id_fkey" FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "parent_phone" ADD CONSTRAINT "parent_phone_parent_id_fkey"
+    FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for person_email
-ALTER TABLE ONLY "person_email" ADD CONSTRAINT "person_email_person_id_fkey" FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "person_email" ADD CONSTRAINT "person_email_person_id_fkey"
+    FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for person_phone
-ALTER TABLE ONLY "person_phone" ADD CONSTRAINT "person_phone_person_id_fkey" FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "person_phone" ADD CONSTRAINT "person_phone_person_id_fkey"
+    FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for student
-ALTER TABLE ONLY "student" ADD CONSTRAINT "student_person_id_fkey" FOREIGN KEY (person_id) REFERENCES person(id) NOT DEFERRABLE;
+ALTER TABLE ONLY "student" ADD CONSTRAINT "student_person_id_fkey"
+    FOREIGN KEY (person_id) REFERENCES person(id) NOT DEFERRABLE;
 
 -- FK for student_siblings
-ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_sibling_student_id_fkey" FOREIGN KEY (sibling_student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_student_id_fkey" FOREIGN KEY (student_id) REFERENCES student(id)  ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_sibling_student_id_fkey"
+    FOREIGN KEY (sibling_student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_student_id_fkey"
+    FOREIGN KEY (student_id) REFERENCES student(id)  ON DELETE CASCADE NOT DEFERRABLE;
 
 -- VIEWS
 
