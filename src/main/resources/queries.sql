@@ -81,15 +81,14 @@ FROM (
 
 -- QUERY 2
 --
--- Query to select average per year/ Task 3, query 2 
+-- Query to select the average number of lessons per month for the specified year/ Task 3, query 2
 SELECT 
 	TRUNC(AVG(group_lesson), 0) AS avg_group_lesson,
 	TRUNC(AVG(ensemble), 0) AS avg_ensemble,
 	TRUNC(AVG(individual_lesson), 0) AS avg_individual_lesson,
 	TRUNC(AVG(total), 0) AS avg_total 
 FROM (
-	SELECT 
-		generated_month.month,
+	SELECT
 		COALESCE(group_lesson, 0) AS group_lesson,
 		COALESCE(ensemble, 0) AS ensemble,
 		COALESCE(individual_lesson, 0) AS individual_lesson,
@@ -160,7 +159,7 @@ ORDER BY
 	start_time;
 
 -- Query to select the number of given lessons per instructor for the next month. The query can
--- easily be changed to the current month by removing "+ 1" that comes after "MONTH FROM NOW()". 
+-- easily be changed to the current month by removing " + 1" that comes after "MONTH FROM NOW()".
 -- The reason that I selected the next month is that the school does not give any lessons in August. 	
 SELECT 
 	instructor_id,
@@ -178,7 +177,7 @@ ORDER BY number_of_lessons;
 
 -- QUERY 4
 --
--- The query shows all ensembles held during the next week and their booking status
+-- Create view that shows all ensembles held during the next week and their booking status
 -- (In order to select the booking status for ensembles held in 2 or 3 weeks, the integer
 -- in the EXTRACT(WEEK FROM NOW()) + 1 statement has to be changed accordingly).   
 CREATE VIEW next_week_ensemble_booking_status AS
@@ -220,3 +219,7 @@ WHERE EXTRACT(WEEK FROM date) = EXTRACT(WEEK FROM NOW()) + 1
 ORDER BY 
 	target_genre, 
 	to_char(date, 'D');			
+
+-- Select the results
+SELECT *
+FROM next_week_ensemble_booking_status;
