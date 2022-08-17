@@ -236,7 +236,7 @@ CREATE TABLE "school" (
     "school_id" character varying(50) NOT NULL,
     "name" character varying(100) NOT NULL,
     "address" character varying(500) NOT NULL,
-    PRIMARY KEY ("school_id", "name", "address")
+    PRIMARY KEY ("school_id")
 );
 
 CREATE TABLE "student" (
