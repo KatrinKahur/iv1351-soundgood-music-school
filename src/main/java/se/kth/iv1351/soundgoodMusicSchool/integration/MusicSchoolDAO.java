@@ -41,6 +41,10 @@ import java.util.List;
  * the Soundgood Music School Database.
  */
 public class MusicSchoolDAO {
+    private static final String DATABASE_URL = "jdbc:postgresql://[DATABASE_URL]";
+    private static final String DATABASE_USERNAME = "[USERNAME]";
+    private static final String DATABASE_PASSWORD = "[PASSWORD]";
+
     private static final String SURROGATE_KEY = "id";
 
     private static final String STUDENT_TABLE_NAME = "student";
@@ -430,9 +434,9 @@ public class MusicSchoolDAO {
     }
 
     private void connectToMusicSchoolDB() throws SQLException {
-        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/sgms_db",
-                "katrin_sgms",
-                "katrin_sgms_password");
+        connection = DriverManager.getConnection(DATABASE_URL,
+                DATABASE_USERNAME,
+                DATABASE_PASSWORD);
         connection.setAutoCommit(false);
     }
 

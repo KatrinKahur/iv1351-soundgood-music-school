@@ -78,7 +78,7 @@ INSERT INTO "student" ("student_id", "person_id") VALUES
 ('S11', 11), -- 11 Nour A
 ('S12', 12); -- 12 Bella
 
-INSERT INTO "student_siblings" ("student_id", "sibling_student_id") VALUES
+INSERT INTO "student_sibling" ("student_id", "sibling_student_id") VALUES
 (5, 6), -- Linda sibling to Oskar
 (6, 5); -- Oskar sibling to Linda
 
@@ -143,7 +143,7 @@ INSERT INTO "parent_email" ("parent_id", "parent_email") VALUES
 ('16',	'NeaLofgren@rhyta.com'), -- Nea
 ('17',	'AxelAbrahamsson@dayrep.com'); -- Axel
 
-INSERT INTO "parent_details" ("student_id", "parent_id") VALUES
+INSERT INTO "parent_detail" ("student_id", "parent_id") VALUES
 ('1',	'1'), --Laila
 ('2',	'2'), --Irma
 ('2',	'3'), -- Irma
@@ -1531,5 +1531,5 @@ INSERT INTO "ensemble_time" ("ensemble_id", "date", "start_time", "end_time") VA
 ('5', '2022-12-01',	'08:00', 	'10:00');
 
 -- Refresh materialized views
-REFRESH MATERIALIZED VIEW generated_months;
-REFRESH MATERIALIZED VIEW instructor_lessons;	
+REFRESH MATERIALIZED VIEW generated_month;
+REFRESH MATERIALIZED VIEW instructor_lesson;	

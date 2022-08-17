@@ -163,7 +163,7 @@ public class BlockingInterpreter {
         System.out.println("Log in successful! Welcome, " + registeredStudent.getFirstName() + "!");
     }
 
-    private void handleLogoutCommand() throws Exception {
+    private void handleLogoutCommand() {
         ctrl.logOutStudent();
         loggedInStatus = false;
         System.out.println("You are now logged out.");
@@ -236,7 +236,7 @@ public class BlockingInterpreter {
         System.out.println("----------------------------------------------------------------------");
         System.out.println("Press RENT <instrument type> <instrument brand> <rental period in months> to rent the " +
                 "instrument.");
-        System.out.println("Example: RENT guitar Gibson 5");
+        System.out.println("Example: RENT guitar gibson 5");
         System.out.println("----------------------------------------------------------------------");
         System.out.println("Press TERMINATE_RENTAL <rental id> to terminate a rent.");
         System.out.println("Example: TERMINATE_RENTAL RENTAL-0010");

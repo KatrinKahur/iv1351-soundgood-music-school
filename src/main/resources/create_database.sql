@@ -1,5 +1,6 @@
 -- CLEAR TABLES
 DROP TABLE IF EXISTS "applicant" CASCADE;
+DROP TABLE IF EXISTS "applied_instrument" CASCADE;
 DROP TABLE IF EXISTS "enrollment_application" CASCADE;
 DROP TABLE IF EXISTS "ensemble_participant" CASCADE;
 DROP TABLE IF EXISTS "ensemble" CASCADE;
@@ -18,7 +19,7 @@ DROP TABLE IF EXISTS "lesson_pricing_scheme" CASCADE;
 DROP TABLE IF EXISTS "musical_instrument" CASCADE;
 DROP TABLE IF EXISTS "musical_instrument_to_rent" CASCADE;
 DROP TABLE IF EXISTS "parent" CASCADE;
-DROP TABLE IF EXISTS "parent_details" CASCADE;
+DROP TABLE IF EXISTS "parent_detail" CASCADE;
 DROP TABLE IF EXISTS "parent_email" CASCADE;
 DROP TABLE IF EXISTS "parent_phone" CASCADE;
 DROP TABLE IF EXISTS "person" CASCADE;
@@ -26,12 +27,12 @@ DROP TABLE IF EXISTS "person_email" CASCADE;
 DROP TABLE IF EXISTS "person_phone" CASCADE;
 DROP TABLE IF EXISTS "school" CASCADE;
 DROP TABLE IF EXISTS "student" CASCADE;
-DROP TABLE IF EXISTS "student_siblings" CASCADE;
+DROP TABLE IF EXISTS "student_sibling" CASCADE;
 
 -- CLEAR VIEWS
-DROP VIEW IF EXISTS "monthly_lesson_statistics" CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS "generated_months" CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS "instructor_lessons" CASCADE;
+DROP VIEW IF EXISTS "monthly_lesson_statistic" CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS "generated_month" CASCADE;
+DROP MATERIALIZED VIEW IF EXISTS "instructor_lesson" CASCADE;
 DROP VIEW IF EXISTS "next_week_ensemble_booking_status" CASCADE;
 DROP VIEW IF EXISTS "rental_with_instrument" CASCADE;
 
@@ -42,9 +43,15 @@ DROP FUNCTION IF EXISTS check_for_rental_quota CASCADE;
 -- TABLES
 
 CREATE TABLE "applicant" (
- 	"id" serial PRIMARY KEY NOT NULL,
-    "applicant_id" character varying(50) NOT NULL,
+    "id" serial PRIMARY KEY NOT NULL,
     "person_id" integer NOT NULL
+);
+
+CREATE TABLE "applied_instrument" (
+    "application_id" integer NOT NULL,
+    "instrument_id" integer NOT NULL,
+    "skillfulness_level" character varying(50) NOT NULL,
+    PRIMARY KEY ("application_id", "instrument_id")
 );
 
 CREATE TABLE "enrollment_application" (
@@ -52,8 +59,6 @@ CREATE TABLE "enrollment_application" (
     "application_id" character varying(50) UNIQUE NOT NULL,
     "submitting_date" date NOT NULL,
     "applicant_id" integer NOT NULL,
-    "skillfullness" character varying(100) NOT NULL,
-    "applied_instrument_id" integer,
     "applied_ensemble_id" integer,
     "place_offered" BOOLEAN,
     "place_accepted" BOOLEAN
@@ -188,7 +193,7 @@ CREATE TABLE "parent" (
     "last_name" character varying(100) NOT NULL
 );
 
-CREATE TABLE "parent_details" (
+CREATE TABLE "parent_detail" (
     "student_id" integer NOT NULL,
     "parent_id" integer NOT NULL,
     PRIMARY KEY ("student_id", "parent_id")
@@ -240,7 +245,7 @@ CREATE TABLE "student" (
     "person_id" integer NOT NULL
 );
 
-CREATE TABLE "student_siblings" (
+CREATE TABLE "student_sibling" (
     "student_id" integer NOT NULL,
     "sibling_student_id" integer NOT NULL
 );
@@ -251,12 +256,15 @@ CREATE TABLE "student_siblings" (
 ALTER TABLE ONLY "applicant" ADD CONSTRAINT "applicant_person_id_fkey"
     FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE NOT DEFERRABLE;
 
+-- FK for applied_instrument
+ALTER TABLE ONLY "applied_instrument" ADD CONSTRAINT "applied_instrument_application_id_fkey"
+    FOREIGN KEY (application_id) REFERENCES enrollment_application(id) ON DELETE CASCADE NOT DEFERRABLE;
+ALTER TABLE ONLY "applied_instrument" ADD CONSTRAINT "applied_instrument_instrument_id_fkey"
+    FOREIGN KEY (instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for enrollment_application
 ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_ensemble_id_fkey"
-    FOREIGN KEY (applied_ensemble_id) REFERENCES ensemble(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applied_instrument_id_fkey"
-    FOREIGN KEY (applied_instrument_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
+    FOREIGN KEY (applied_ensemble_id) REFERENCES ensemble(id) NOT DEFERRABLE;
 ALTER TABLE ONLY "enrollment_application" ADD CONSTRAINT "enrollment_application_applicant_id_fkey"
     FOREIGN KEY (applicant_id) REFERENCES applicant(id) ON DELETE CASCADE NOT DEFERRABLE;
 
@@ -331,10 +339,10 @@ ALTER TABLE ONLY "instrument_rental" ADD CONSTRAINT "instrument_rental_student_i
 ALTER TABLE ONLY "musical_instrument_to_rent" ADD CONSTRAINT "musical_instrument_to_rent_instrument_type_id_fkey"
     FOREIGN KEY (instrument_type_id) REFERENCES musical_instrument(id) ON DELETE CASCADE NOT DEFERRABLE;
 
--- FK for parent_details
-ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_parent_id_fkey"
+-- FK for parent_detail
+ALTER TABLE ONLY "parent_detail" ADD CONSTRAINT "parent_detail_parent_id_fkey"
     FOREIGN KEY (parent_id) REFERENCES parent(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "parent_details" ADD CONSTRAINT "parent_details_student_id_fkey"
+ALTER TABLE ONLY "parent_detail" ADD CONSTRAINT "parent_detail_student_id_fkey"
     FOREIGN KEY (student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
 
 -- FK for parent_email
@@ -357,19 +365,20 @@ ALTER TABLE ONLY "person_phone" ADD CONSTRAINT "person_phone_person_id_fkey"
 ALTER TABLE ONLY "student" ADD CONSTRAINT "student_person_id_fkey"
     FOREIGN KEY (person_id) REFERENCES person(id) NOT DEFERRABLE;
 
--- FK for student_siblings
-ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_sibling_student_id_fkey"
+-- FK for student_sibling
+ALTER TABLE ONLY "student_sibling" ADD CONSTRAINT "student_sibling_sibling_student_id_fkey"
     FOREIGN KEY (sibling_student_id) REFERENCES student(id) ON DELETE CASCADE NOT DEFERRABLE;
-ALTER TABLE ONLY "student_siblings" ADD CONSTRAINT "student_siblings_student_id_fkey"
+ALTER TABLE ONLY "student_sibling" ADD CONSTRAINT "student_sibling_student_id_fkey"
     FOREIGN KEY (student_id) REFERENCES student(id)  ON DELETE CASCADE NOT DEFERRABLE;
 
 -- VIEWS
 
--- View to display lesson statistics per month and per year for each lesson category as well as the total number of lessons for all categories
-CREATE VIEW monthly_lesson_statistics AS
+-- View to display lesson statistics per month and per year for each lesson category as well as the total number of lessons for all categories/ Task 3
+-- The view returns statistics for all years
+CREATE VIEW monthly_lesson_statistic AS
 SELECT
-	group_lesson_statistics.year, 
-	group_lesson_statistics.month, 
+	group_lesson_statistic.year, 
+	group_lesson_statistic.month, 
 	COALESCE(group_lessons, 0) AS group_lesson, 
 	COALESCE(ensembles, 0) AS ensemble, 
 	COALESCE(individual_lessons, 0) AS individual_lesson,
@@ -382,7 +391,7 @@ FROM (
     		COUNT(*) AS group_lessons
     	FROM group_lesson_time
     	GROUP BY year, month
-      ) AS group_lesson_statistics 
+      ) AS group_lesson_statistic 
       FULL OUTER JOIN
       (
       	SELECT 
@@ -391,9 +400,9 @@ FROM (
     		COUNT(*) AS ensembles
     	FROM ensemble_time
     	GROUP BY year, month
-      ) AS ensemble_statistics
-      ON group_lesson_statistics.month = ensemble_statistics.month 
-      AND group_lesson_statistics.year = ensemble_statistics.year
+      ) AS ensemble_statistic
+      ON group_lesson_statistic.month = ensemble_statistic.month 
+      AND group_lesson_statistic.year = ensemble_statistic.year
       FULL OUTER JOIN
       (
       	SELECT 
@@ -407,24 +416,25 @@ FROM (
      			ON booked_time_slot_id = instructor_time_slot.id
      		 ) AS i
     	GROUP BY year, month
-      ) AS individual_lesson_statistics
-     ON group_lesson_statistics.month = individual_lesson_statistics.month 
-     AND group_lesson_statistics.year = individual_lesson_statistics.year
+      ) AS individual_lesson_statistic
+     ON group_lesson_statistic.month = individual_lesson_statistic.month 
+     AND group_lesson_statistic.year = individual_lesson_statistic.year
      )
 ORDER BY 
-	to_date(group_lesson_statistics.year, 'YYYY'), 
-	to_date(group_lesson_statistics.month, 'Mon');
-
+	to_date(group_lesson_statistic.year, 'YYYY'), 
+	to_date(group_lesson_statistic.month, 'Mon');
+	
+	
 -- Materialized view for series of months
-CREATE MATERIALIZED VIEW generated_months AS 
+CREATE MATERIALIZED VIEW generated_month AS
 SELECT 
-	to_char(generated_months, 'Mon') AS month 
+	to_char(generated_month, 'Mon') AS month
 FROM 
 	generate_series('2022-01-01'::timestamp, '2022-12-31', '1 month') 
-	AS generated_months;
+	AS generated_month;
 
 -- Materialized view displaying all instructor lessons
-CREATE MATERIALIZED VIEW instructor_lessons AS	
+CREATE MATERIALIZED VIEW instructor_lesson AS	
 SELECT
 	instructor_id,
 	(first_name || ' ' || last_name) AS instructor_name,
@@ -507,19 +517,19 @@ FROM (
 				target_genre
 			FROM ensemble
 			INNER JOIN ensemble_participant
-			ON ensemble.id = ensemble_participant.ensemble_id) AS ensembles_with_participants
+			ON ensemble.id = ensemble_participant.ensemble_id) AS ensemble_with_participant
 		GROUP BY 
 			ens_id, 
 			max_partic, 
 			target_genre
-			) AS ensembles_with_counted_participants			
+			) AS ensemble_with_counted_participantS		
 	INNER JOIN ensemble_time
 	ON ensemble_time.ensemble_id = ens_id
-	) AS ensembles_with_times
-WHERE EXTRACT(WEEK FROM date) = EXTRACT(WEEK FROM NOW()) + 2
+	) AS ensemble_with_time
+WHERE EXTRACT(WEEK FROM date) = EXTRACT(WEEK FROM NOW()) + 1
 ORDER BY 
 	target_genre, 
-	to_char(date, 'D');	
+	to_char(date, 'D');			
 
 -- View that shows all rentals together with their instrument types and brands	
 CREATE VIEW rental_with_instrument AS
